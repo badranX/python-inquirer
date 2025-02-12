@@ -5,7 +5,7 @@ from pprint import pprint
 
 sys.path.append(os.path.realpath("."))
 import inquirer  # noqa
-
+from inquirer.themes import GreenPassion
 
 questions = [
     inquirer.List(
@@ -16,6 +16,6 @@ questions = [
     ),
 ]
 
-answers = inquirer.prompt(questions)
+answers = inquirer.prompt(questions, theme=GreenPassion())
 
 pprint(answers)

@@ -97,6 +97,10 @@ class Question:
     def choices(self):
         return list(self.choices_generator)
 
+    @choices.setter
+    def choices(self, value):
+        self._choices = value
+
     def validate(self, current):
         try:
             if self._solve(self._validate, current):

@@ -11,6 +11,14 @@ class List(BaseConsoleRender):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.current = self._current_index()
+        self.current_text = ""
+        self.cursor_offset = 0
+        self._autocomplete_state = None
+        self.search_idxs = None
+
+
+    def get_current_value(self):
+        return self.current_text + (self.terminal.move_left * self.cursor_offset)
 
     @property
     def is_long(self):
@@ -30,6 +38,8 @@ class List(BaseConsoleRender):
 
     def get_options(self):
         choices = self.question.choices or []
+        if self.search_idxs:
+            choices = [choices[i] for i in self.search_idxs]
         if self.is_long:
             cmin = 0
             cmax = MAX_OPTIONS_DISPLAYED_AT_ONCE
@@ -71,12 +81,14 @@ class List(BaseConsoleRender):
                 self.current = len(question.choices) - 1
             else:
                 self.current = max(0, self.current - 1)
+            self.choice_call_back(self.current)
             return
         if pressed == key.DOWN:
             if question.carousel and self.current == len(question.choices) - 1:
                 self.current = 0
             else:
                 self.current = min(len(self.question.choices) - 1, self.current + 1)
+            self.choice_call_back(self.current)
             return
         if pressed == key.ENTER:
             value = self.question.choices[self.current]
@@ -92,6 +104,66 @@ class List(BaseConsoleRender):
 
         if pressed == key.CTRL_C:
             raise KeyboardInterrupt()
+
+        # add text input
+        self._process_text(pressed)
+
+    def _process_text(self, pressed):
+        if pressed == key.CTRL_C:
+            raise KeyboardInterrupt()
+
+        if pressed in (key.CR, key.LF, key.ENTER):
+            raise errors.EndOfInput(self.current_text)
+
+        if pressed == key.TAB and self.question.autocomplete:
+            if self._autocomplete_state is None:
+                self._autocomplete_state = [self.current_text, 0]
+
+            [text, state] = self._autocomplete_state
+            autocomplete = self.question.autocomplete(text, state)
+            if isinstance(autocomplete, str):
+                self.current_text = autocomplete
+                self._autocomplete_state[1] += 1
+            else:
+                self._autocomplete_state = None
+            return
+
+        self._autocomplete_state = None
+
+        if pressed == key.BACKSPACE:
+            if self.current_text and self.cursor_offset != len(self.current_text):
+                if self.cursor_offset > 0:
+                    n = -self.cursor_offset
+                    self.current_text = self.current_text[: n - 1] + self.current_text[n:]
+                else:
+                    self.current_text = self.current_text[:-1]
+        elif pressed == key.SUPR:
+            if self.current_text and self.cursor_offset:
+                n = -self.cursor_offset
+                self.cursor_offset -= 1
+                if n < -1:
+                    self.current_text = self.current_text[:n] + self.current_text[n + 1 :]  # noqa E203
+                else:
+                    self.current_text = self.current_text[:n]
+        elif pressed == key.LEFT:
+            if self.cursor_offset < len(self.current_text):
+                self.cursor_offset += 1
+        elif pressed == key.RIGHT:
+            self.cursor_offset = max(self.cursor_offset - 1, 0)
+        elif len(pressed) != 1:
+            return
+        else:
+            if self.cursor_offset == 0:
+                self.current_text += pressed
+            else:
+                n = -self.cursor_offset
+                self.current_text = "".join((self.current_text[:n], pressed, self.current_text[n:]))
+
+            tmp = self.search_idxs
+            self.search_idxs = self.filter_func(self.current_text, self.question.choices)
+            if self.search_idxs != tmp:
+                self.current = 0
+
 
     def _current_index(self):
         try:

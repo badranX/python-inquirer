@@ -1,7 +1,7 @@
 import inquirer
 
 
-suggestions = ["inquirer", "hello", "world", "foo", "bar", "baz", "qux"]
+suggestions = ["inquirer", "intest", "hello", "world", "foo", "bar", "baz", "qux"]
 
 
 def autocomplete_fn(_text, state):

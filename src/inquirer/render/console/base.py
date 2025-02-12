@@ -11,13 +11,19 @@ half_options = int((MAX_OPTIONS_DISPLAYED_AT_ONCE - 1) / 2)
 class BaseConsoleRender:
     title_inline = False
 
-    def __init__(self, question, theme=None, terminal=None, show_default=False, *args, **kwargs):
+    def __init__(self, question, theme=None, terminal=None, show_default=False, choice_call_back=None, filter_func=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.question = question
         self.terminal = terminal or Terminal()
         self.answers = {}
         self.theme = theme
         self.show_default = show_default
+        self.choice_call_back = choice_call_back or (lambda x: None)
+        def filter_test(text, choices):
+            with open('logs.txt', 'w') as f:
+                f.write(str(choices))
+            return [1,2,3]
+        self.filter_func = filter_func or filter_test
 
     def other_input(self):
         other = inquirer.text(self.question.message, autocomplete=self.question.autocomplete)
