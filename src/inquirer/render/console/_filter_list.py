@@ -71,19 +71,18 @@ class FilterList(BaseConsoleRender):
             yield choice, symbol, color
 
     def process_input(self, pressed):
+        prev_choice = self.question.choices[self.current]
         question = self.question
         if pressed == key.UP:
             if question.carousel and self.current == 0:
                 self.current = len(question.choices) - 1
             else:
                 self.current = max(0, self.current - 1)
-            return
         if pressed == key.DOWN:
             if question.carousel and self.current == len(question.choices) - 1:
                 self.current = 0
             else:
                 self.current = min(len(self.question.choices) - 1, self.current + 1)
-            return
         if pressed == key.ENTER:
             value = self.question.choices[self.current]
 
@@ -92,15 +91,17 @@ class FilterList(BaseConsoleRender):
                 if not value:
                     # Clear the print inquirer.text made, since the user didn't enter anything
                     print(self.terminal.move_up + self.terminal.clear_eol, end="")
-                    return
 
             raise errors.EndOfInput(getattr(value, "value", value))
 
         if pressed == key.CTRL_C:
             raise KeyboardInterrupt()
 
-            # add text input
         self._process_text(pressed)
+
+        current_choice = self.question.choices[self.current]
+        if current_choice != prev_choice:
+            self.question.choice_callback(current_choice)
 
     def _process_text(self, pressed):
         prev_text = self.current_text
