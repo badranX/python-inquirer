@@ -20,9 +20,14 @@ class BaseConsoleRender:
         self.show_default = show_default
         self.choice_call_back = choice_call_back or (lambda x: None)
         def filter_test(text, choices):
+            from fuzzyfinder import fuzzyfinder
+            choices = fuzzyfinder(text, choices, accessor=lambda x: str(x))
+            #if text == '':
+            #    return None
             with open('logs.txt', 'w') as f:
                 f.write(str(choices))
-            return [1,2,3]
+            return list(choices)
+            return list(choices)[:3]
         self.filter_func = filter_func or filter_test
 
     def other_input(self):

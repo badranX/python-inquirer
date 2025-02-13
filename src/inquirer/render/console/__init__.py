@@ -42,6 +42,7 @@ class ConsoleRender:
     def _event_loop(self, render):
         try:
             while True:
+                self.clear_eos()
                 self._relocate()
                 self._print_status_bar(render)
 

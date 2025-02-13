@@ -60,9 +60,19 @@ class Question:
         self.show_default = show_default
         self.hints = hints
         self._other = other
+        self._filter_choices = None
 
         if self._other:
             self._choices.append(GLOBAL_OTHER_CHOICE)
+
+    def apply_filter(self, filter_func):
+        #TODO
+        #str_choices = [str(choice) for choice in self.choices_generator]
+        self._filter_choices = None
+        self._filter_choices = filter_func(self.choices_generator)
+
+    def remove_filter(self):
+        self._filter_choices = None
 
     def add_choice(self, choice):
         try:
@@ -90,7 +100,8 @@ class Question:
 
     @property
     def choices_generator(self):
-        for choice in self._solve(self._choices):
+        choices = self._filter_choices  or self._choices
+        for choice in self._solve(choices):
             yield (TaggedValue(*choice) if isinstance(choice, tuple) and len(choice) == 2 else choice)
 
     @property

@@ -14,7 +14,7 @@ class List(BaseConsoleRender):
         self.current_text = ""
         self.cursor_offset = 0
         self._autocomplete_state = None
-        self.search_idxs = None
+        #self.search_idxs = None
 
 
     def get_current_value(self):
@@ -38,8 +38,8 @@ class List(BaseConsoleRender):
 
     def get_options(self):
         choices = self.question.choices or []
-        if self.search_idxs:
-            choices = [choices[i] for i in self.search_idxs]
+        #if self.search_idxs:
+        #    choices = [choices[i] for i in self.search_idxs]
         if self.is_long:
             cmin = 0
             cmax = MAX_OPTIONS_DISPLAYED_AT_ONCE
@@ -109,6 +109,7 @@ class List(BaseConsoleRender):
         self._process_text(pressed)
 
     def _process_text(self, pressed):
+        prev_text = self.current_text
         if pressed == key.CTRL_C:
             raise KeyboardInterrupt()
 
@@ -159,10 +160,15 @@ class List(BaseConsoleRender):
                 n = -self.cursor_offset
                 self.current_text = "".join((self.current_text[:n], pressed, self.current_text[n:]))
 
-            tmp = self.search_idxs
-            self.search_idxs = self.filter_func(self.current_text, self.question.choices)
-            if self.search_idxs != tmp:
-                self.current = 0
+            #tmp = self.search_idxs
+            #filter_ids = self.filter_func(self.current_text, self.question.choices)
+            #if self.search_idxs != tmp:
+            #    self.current = 0
+        if prev_text != self.current_text:
+            f = lambda x: self.filter_func(self.current_text, x)
+            self.question.apply_filter(f)
+        if self.current_text == '':
+            self.question.remove_filter()
 
 
     def _current_index(self):
