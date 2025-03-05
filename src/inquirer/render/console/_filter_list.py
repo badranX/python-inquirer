@@ -164,7 +164,7 @@ class FilterList(BaseConsoleRender):
             if prev_text != self.current_text:
                 self.current = 0
                 self.question.apply_filter(self._search_filter)
-                if self.current_text == '':
+                if self.current_text == "":
                     self.question.remove_filter()
 
     def _search_filter(self, items):
