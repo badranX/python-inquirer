@@ -90,12 +90,16 @@ jobs:
         run: |
           nox --force-color --python=${{ matrix.python }}
 
+
+      - name: Find Coverage Files
+        run: find . -name "*coverage*"
+
       - name: Upload coverage data
         if: always() && matrix.session == 'tests'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-data
-          path: ".coverage*"
+          path: ".coverage.*"
 
   coverage:
     runs-on: ubuntu-latest
