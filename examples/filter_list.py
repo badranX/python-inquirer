@@ -13,7 +13,16 @@ sys.path.append(os.path.realpath("."))
 import inquirer  # noqa
 
 
-choices = "apple banana grapefruit blueberry strawberry blackberry raspberry cherry mango pineapple watermelon cantaloupe honeydew kiwi papaya fig pomegranate date coconut lemon lime orange tangerine peach plum apricot pear persimmon guava passionfruit lychee dragonfruit starfruit durian jackfruit elderberry mulberry boysenberry carrot potato tomato cucumber lettuce spinach broccoli cauliflower cabbage zucchini squash pumpkin radish beet onion garlic shallot leek celery asparagus artichoke pepper chili jalapeno habanero ghost pepper serrano poblano corn peas green beans chickpeas lentils soybeans quinoa rice barley oats wheat"
+choices = (
+    "apple banana grapefruit blueberry strawberry blackberry raspberry cherry mango "
+    "pineapple watermelon cantaloupe honeydew kiwi papaya fig pomegranate date coconut "
+    "lemon lime orange tangerine peach plum apricot pear persimmon guava passionfruit "
+    "lychee dragonfruit starfruit durian jackfruit elderberry mulberry boysenberry "
+    "carrot potato tomato cucumber lettuce spinach broccoli cauliflower cabbage "
+    "zucchini squash pumpkin radish beet onion garlic shallot leek celery asparagus "
+    "artichoke pepper chili jalapeno habanero ghost pepper serrano poblano corn peas "
+    "green beans chickpeas lentils soybeans quinoa rice barley oats wheat"
+)
 
 
 def filter_func(text, collection):
@@ -22,8 +31,8 @@ def filter_func(text, collection):
 
 
 def callback_listener(item):
-    with open('choice_logs.txt', 'a') as f:
-        f.write(str(item) + '\n')
+    with open("choice_logs.txt", "a") as f:
+        f.write(str(item) + "\n")
 
 
 questions = [
