@@ -95,7 +95,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-data
-          path: "./.coverage.*"
+          path: ".coverage.*"
+          include-hidden-files: true
 
   coverage:
     runs-on: ubuntu-latest
