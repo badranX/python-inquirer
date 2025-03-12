@@ -71,7 +71,7 @@ class FilterList(BaseConsoleRender):
             yield choice, symbol, color
 
     def _get_current_choice(self):
-        return self.question.choices[self.current]
+        return self.question.choices[self.current] if self.question.choices else None
 
     def process_input(self, pressed):
         prev_choice = self._get_current_choice()
@@ -81,7 +81,7 @@ class FilterList(BaseConsoleRender):
         self._process_text_input(pressed)
 
         current_choice = self._get_current_choice()
-        if prev_choice != current_choice:
+        if current_choice and (prev_choice != current_choice):
             if self.question.choice_callback:
                 self.question.choice_callback(current_choice)
 
@@ -163,9 +163,10 @@ class FilterList(BaseConsoleRender):
         if self.question.filter_func:
             if prev_text != self.current_text:
                 self.current = 0
-                self.question.apply_filter(self._search_filter)
                 if self.current_text == "":
                     self.question.remove_filter()
+                else:
+                    self.question.apply_filter(self._search_filter)
 
     def _search_filter(self, items):
         return self.question.filter_func(self.current_text, items)

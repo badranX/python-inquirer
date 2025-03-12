@@ -7,11 +7,12 @@ import inquirer  # noqa
 choice_change = []
 choices = list(random.__dict__.keys())
 random.shuffle(choices)
+print('len : ', len(choices))
 
 
 def filter_func(text, collection):
     f = filter(lambda x: text in x, collection)
-    return list(f)
+    return f
 
 
 def callback_listener(item):
