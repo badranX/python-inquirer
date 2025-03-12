@@ -39,15 +39,21 @@ class ConsoleRender:
             print("")
 
     def _event_loop(self, render):
+        prev_position = self._position
         try:
             while True:
-                self.clear_eos()
                 self._relocate()
                 self._print_status_bar(render)
 
                 self._print_header(render)
                 self._print_hint(render)
                 self._print_options(render)
+
+                if (prev_position > self._position) > 0:
+                    self.clear_eos()
+                    sys.stdout.flush()
+                else:
+                    prev_position = self._position
 
                 self._process_input(render)
                 self._force_initial_column()
