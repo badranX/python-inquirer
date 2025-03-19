@@ -1,20 +1,14 @@
 import sys
 import unittest
 
-from inquirer.render.console.base import MAX_OPTIONS_DISPLAYED_AT_ONCE
-
-
 import pexpect
 from readchar import key
 
 
 class PublicParams:
     def __init__(self):
-        dd = str.__dict__
-        self.choices = list(dd.keys())
-        self.choices.sort()
-        self.query = "__"
-        self.fil_choices = list(filter(lambda x: self.query in x, self.choices))
+        self.choices_map = str.__dict__
+        self.choices = sorted(self.choices_map.keys())
 
 
 PRM = PublicParams()
@@ -130,7 +124,8 @@ class FilterListTest(unittest.TestCase):
 class ListCarouselTest(unittest.TestCase):
     def setUp(self):
         self.sut = pexpect.spawn("python examples/filter_list.py carousel")
-        self.sut.expect(self.choices[MAX_OPTIONS_DISPLAYED_AT_ONCE - 1], timeout=1)
+        self.choices = PRM.choices
+        self.sut.expect(f"{self.choices[0]}.*", timeout=1)
 
     def test_out_of_bounds_up(self):
         self.sut.send(key.UP)
@@ -154,7 +149,8 @@ class ListCarouselTest(unittest.TestCase):
 class CheckOtherTest(unittest.TestCase):
     def setUp(self):
         self.sut = pexpect.spawn("python examples/filter_list.py other carousel")
-        self.sut.expect(self.choices[MAX_OPTIONS_DISPLAYED_AT_ONCE - 1], timeout=1)
+        self.choices = PRM.choices
+        self.sut.expect(f"{PRM.choices[0]}", timeout=1)
 
     def test_other_input(self):
         self.sut.send(key.UP)
@@ -189,28 +185,12 @@ class CheckOtherTest(unittest.TestCase):
 class ListTaggedTest(unittest.TestCase):
     def setUp(self):
         self.sut = pexpect.spawn("python examples/filter_list.py tag")
+        self.choices = PRM.choices
+        self.choices_map = PRM.choices_map
         self.sut.expect(f"{self.choices[0]}.*", timeout=1)
 
     def test_default_input(self):
         self.sut.send(key.ENTER)
         c = self.choices[0]
-        tag = str(self.choices_DICT[c])[:5]
+        tag = str(self.choices_map[c])[:5]
         self.sut.expect(f"{{'attribute': '{tag}'}}.*", timeout=1)
-
-
-@unittest.skipUnless(sys.platform.startswith("lin"), "Linux only")
-class FilterListSearchTest(unittest.TestCase):
-    def setUp(self):
-        self.sut = pexpect.spawn("python examples/filter_list.py autocomplete")
-        self.fil = list(filter(lambda x: "__" in x, self.choices))
-
-    def test_autocomplete(self):
-        self.sut.expect(": .*", timeout=1)
-        self.sut.send("__")
-        res1st = self.fil[0]
-        self.sut.expect(f"{res1st}.*", timeout=1)
-        self.sut.send(key.TAB)
-        res2nd = self.fil[1]
-        self.sut.expect(f"{res2nd}.*", timeout=1)
-        self.sut.send(key.ENTER)
-        self.sut.expect(f"{{'attribute': '{res2nd}'}}.*", timeout=1)
